@@ -10,27 +10,22 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
-# --- Database Setup ---
 conn = sqlite3.connect("gacha.db")
 c = conn.cursor()
 
-# Create tables if not exist
 c.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY
 )''')
 
-# Function to add missing columns safely
 def add_column_if_not_exists(cursor, table, column, col_type, default):
     cursor.execute(f"PRAGMA table_info({table})")
     columns = [col[1] for col in cursor.fetchall()]
     if column not in columns:
         cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type} DEFAULT {default}")
 
-# Add 'pity' and 'points' columns if missing
 add_column_if_not_exists(c, "users", "pity", "INTEGER", 0)
 add_column_if_not_exists(c, "users", "points", "INTEGER", 0)
 
-# Create inventory table
 c.execute('''
 CREATE TABLE IF NOT EXISTS inventory (
     user_id INTEGER,
@@ -42,7 +37,6 @@ CREATE TABLE IF NOT EXISTS inventory (
 
 conn.commit()
 
-# --- Character Pools ---
 five_star_characters = [
     {"name": "Seele", "rarity": 5, "image": "https://github.com/Mar-7th/StarRailRes/raw/master/image/Seele/SplashArt.png"},
     {"name": "Bronya", "rarity": 5, "image": "https://github.com/Mar-7th/StarRailRes/raw/master/image/Bronya/SplashArt.png"},
@@ -65,7 +59,6 @@ three_star_characters = [
     {"name": "Curio Merchant", "rarity": 3, "image": None},
 ]
 
-# --- Gacha Logic ---
 def pull_character(pity):
     if pity >= 79:
         return random.choice(five_star_characters), True
@@ -78,7 +71,6 @@ def pull_character(pity):
     else:
         return random.choice(three_star_characters), False
 
-# --- /pull command ---
 @tree.command(name="pull", description="Do a 10x pull")
 async def pull(interaction: discord.Interaction):
     await interaction.response.defer()
@@ -111,7 +103,6 @@ async def pull(interaction: discord.Interaction):
         if is_five:
             got_five_star = True
 
-        # Save character to inventory if not present
         try:
             c.execute(
                 "INSERT OR IGNORE INTO inventory (user_id, character_name, rarity) VALUES (?, ?, ?)",
@@ -136,7 +127,6 @@ async def pull(interaction: discord.Interaction):
             embed.set_image(url=character["image"])
         await interaction.followup.send(embed=embed)
 
-# --- /balance command ---
 @tree.command(name="balance", description="Check your currency balance")
 async def balance(interaction: discord.Interaction):
     user_id = interaction.user.id
@@ -145,7 +135,6 @@ async def balance(interaction: discord.Interaction):
     points = row[0] if row else 0
     await interaction.response.send_message(f"💰 You have {points} points.", ephemeral=True)
 
-# --- /inventory command ---
 @tree.command(name="inventory", description="See your pulled characters")
 async def inventory(interaction: discord.Interaction):
     user_id = interaction.user.id
@@ -163,7 +152,6 @@ async def inventory(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# --- Track messages to give points ---
 @bot.event
 async def on_message(message):
     if message.author.bot:
@@ -182,8 +170,7 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-# --- Ready event ---
-GUILD_ID = 1057046944020713473  # your server ID
+GUILD_ID = 1057046944020713473
 
 @bot.event
 async def on_ready():
@@ -191,6 +178,5 @@ async def on_ready():
     await tree.sync(guild=guild)
     print(f"✅ Bot is online as {bot.user}")
 
-# --- Run bot ---
 bot.run("MTM5MzMzMTA4MjUyNjcyMDE4Mg.GreDmv.eSFqdaNjwRP3hS-p5s1VJLyrU6WQjH6IEpqIzI")
 
