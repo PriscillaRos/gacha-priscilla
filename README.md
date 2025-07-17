@@ -13,4 +13,4 @@ Features
 - `/inventory` — view your collected items  
 - `/balance` — check how much currency you have  
 
-https://s2.ezgif.com/tmp/ezgif-208b1b70ed5dc2.gif
+![Gacha Bot Demo](https://https://github.com/PriscillaRos/gacha-priscilla/blob/main/ezgif-208b1b70ed5dc2.gif?raw=true)
