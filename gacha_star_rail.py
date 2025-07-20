@@ -178,5 +178,5 @@ async def on_ready():
     await tree.sync(guild=guild)
     print(f"✅ Bot is online as {bot.user}")
 
-bot.run("MTM5MzMzMTA4MjUyNjcyMDE4Mg.GreDmv.eSFqdaNjwRP3hS-p5s1VJLyrU6WQjH6IEpqIzI")
+bot.run("enter your bot token")
 
